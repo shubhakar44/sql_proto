@@ -21,8 +21,8 @@ module.exports = {
             host: 'localhost',
             port: 3306,
             user: 'root',
-            password: 'Shubhakar@123',
-            database: 'sys_design'
+            password: 'password',
+            database: 'mydb'
         });
     }
 };
