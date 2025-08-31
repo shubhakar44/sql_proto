@@ -1,0 +1,18 @@
+{
+  "name": "mysql-query-api",
+  "version": "1.0.0",
+  "description": "A simple API to execute queries on a MySQL database.",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "mysql2": "^3.14.3"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
