@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const QueryController = require('../controllers/queryController');
 const pool = require('../db'); // import the pool
+const cache = require('../services/cache'); // import the cache service
 
-const queryController = new QueryController(pool);
+const queryController = new QueryController(pool, cache);
 
 // Change route to /checkin and accept userId as a query parameter
 router.post('/checkin', (req, res) => {
@@ -23,5 +24,16 @@ router.post('/checkin', (req, res) => {
     }
 });
 
+router.get('/get_blogs_without_cache_lock', (req, res) => {
+    const id = req.query.id; // Access the query parameter
+    const lock = req.query.lock;
+    if (lock === '0') {
+        // No cache lock
+        queryController.getBlogsWithoutCacheLock(req, res, id);
+    } else if (lock === '1') {
+        // With cache lock
+        queryController.getBlogsWithCacheLock(req, res, id);
+    }
+});
 
 module.exports = router;

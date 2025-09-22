@@ -13,7 +13,7 @@ const mysql = require('mysql2/promise');
 
 // module.exports = pool;
 
-
+//TODO - This use different connection for each request. Implement connection pooling
 
 module.exports = {
     createConnection: async () => {
