@@ -32,11 +32,11 @@
 
 
 //Cache locking
-
+let lock = 1
     for (let i = 0; i < 100; i++) {
         const url = new URL(`http://localhost:3000/api/get_blogs`);
         url.searchParams.append('id', 1);
-        url.searchParams.append('lock', 0);
+        url.searchParams.append('lock', lock);
         res.push(fetch(url, {
             method: 'GET',
         }))
@@ -54,7 +54,7 @@
             }
         }
         const end = Date.now();
-        console.log(`Time taken: ${end - start}ms`);
+        console.log(`Cache ${lock === 0 ? 'without' : 'with'} lock `);
         console.log(`Cache hits: ${cacheHits}`);
         console.log(`Cache misses: ${cacheMiss}`);
     });

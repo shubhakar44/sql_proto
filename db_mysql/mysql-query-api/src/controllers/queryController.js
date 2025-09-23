@@ -1,8 +1,8 @@
-const semaphore = require('../services/semaphore');
 class QueryController {
     constructor(db, cache) {
         this.db = db;
         this.cache = cache;
+        this.semaphore_map = {};
     }
 
     async assignSeatWithoutLocks(req, res, userId) {
@@ -96,17 +96,15 @@ class QueryController {
     
     
     // New method to get blogs
-    async getBlogsWithNoCacheLock(req, res, id) {
+    async getBlogsWithoutCacheLock(req, res, id) {
         const conn = await this.db.createConnection(); // get dedicated connection
         try {
             const cacheKey = `blogs_${id}`;
             const cachedBlogs = await this.cache.get(cacheKey);
             if (cachedBlogs) {
-                console.log('Cache hit');
                 return res.json({ message: 1, data: cachedBlogs });
             }
 
-            console.log('Cache miss');
             const [rows] = await conn.query(
                 `SELECT * FROM blogs WHERE id = ?`,
                 [id]
@@ -128,20 +126,26 @@ class QueryController {
             const cacheKey = `blogs_${id}`;
             const cachedBlogs = await this.cache.get(cacheKey);
             if (cachedBlogs) {
-                console.log('Cache hit');
                 return res.json({ message: 1, data: cachedBlogs });
             }
 
-            console.log('Cache miss');
-            const waitingList = {};
-            
-            const [rows] = await conn.query(
-                `SELECT * FROM blogs WHERE id = ?`,
-                [id]
-            );
+            if (this.semaphore_map[cacheKey]) {
+                this.semaphore_map[cacheKey].then((data) => {
+                    res.json({ message: 1, data });
+                });
+            } else {
+                this.semaphore_map[cacheKey] =  new Promise(async (resolve) => {
+                    const [rows] = await conn.query(
+                        `SELECT * FROM blogs WHERE id = ?`,
+                        [id]
+                    );
+                    await this.cache.set(cacheKey, rows);
+                    res.json({ message: 0, data: rows });
+                    resolve(rows);
+                });
 
-            await this.cache.set(cacheKey, rows);
-            res.json({ message: 0, data: rows });
+            }
+
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: 'Internal Server Error' });

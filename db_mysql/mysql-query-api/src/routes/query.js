@@ -24,7 +24,7 @@ router.post('/checkin', (req, res) => {
     }
 });
 
-router.get('/get_blogs_without_cache_lock', (req, res) => {
+router.get('/get_blogs', (req, res) => {
     const id = req.query.id; // Access the query parameter
     const lock = req.query.lock;
     if (lock === '0') {
